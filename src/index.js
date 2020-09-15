@@ -8,6 +8,18 @@ app.use(express.json());
 //se modificar o código, nodemoon reinicia e projetos também são perdidos!
 const projects = [];
 
+function logrequest(request, response, next) {
+  const { method, url } = request;
+
+  const logLabel = `${method.toUpperCase()}, ${url}`;
+
+  console.log(logLabel);
+
+  return next(); //proximo middleware;
+}
+
+app.use(logrequest); //
+
 app.get("/projects", (request, response) => {
   const { title } = request.query;
   const results = title
