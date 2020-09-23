@@ -1,5 +1,5 @@
 const express = require("express"); // importando express
-const { uuid } = require("uuidv4"); // gera uma id unica universal
+const { uuid, isUuid } = require("uuidv4"); // gera uma id unica universal
 const app = express();
 
 app.use(express.json());
@@ -15,10 +15,21 @@ function logrequest(request, response, next) {
 
   console.log(logLabel);
 
-  return next(); //proximo middleware;
+  return next(); //é necessário para chamar o próximo middleware (nesse caso a rota que está sendo chamada), ou para o script aqui;
 }
 
-app.use(logrequest); //
+function validadeProjectId(request, response, next) {
+  const { id } = request.params;
+
+  if (!isUuid(id)) {
+    return response.status(400).json({ error: "Invalid Project ID" });
+  }
+
+  return next();
+}
+
+app.use(logrequest);
+app.use("/project/:id", validadeProjectId);
 
 app.get("/projects", (request, response) => {
   const { title } = request.query;
@@ -52,18 +63,18 @@ app.put("/projects/:id", (request, response) => {
   // se não encontrar o index, mostra um erro com status 400 (bad request)
   // status 200 é sucesso na operação. Para erros, é preciso mudar para 400 - erro
   if (projectIndex < 0) {
-    return response.status(400).json({ error: "Project not fount!" });
+    return response.status(400).json({ error: "Project not found!" });
+  } else {
+    const project = {
+      id,
+      title,
+      owner,
+    };
+
+    projects[projectIndex] = project;
+
+    return response.json(project);
   }
-
-  const project = {
-    id,
-    title,
-    owner,
-  };
-
-  projects[projectIndex] = project;
-
-  return response.json(project);
 });
 
 app.delete("/projects/:id", (request, response) => {
