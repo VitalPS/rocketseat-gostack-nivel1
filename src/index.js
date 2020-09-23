@@ -1,7 +1,10 @@
 const express = require("express"); // importando express
+const cors = require("cors");
 const { uuid, isUuid } = require("uuidv4"); // gera uma id unica universal
+
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 //programa encerrou? variavel reseta! Esse é apenas um exemplo. Na realidade usa-se BD.
